@@ -13,8 +13,10 @@ const validate = (schema) => {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      console.log('❌ Validation Failed:', JSON.stringify({ body: req.body, errors }, null, 2));
-      return next(ApiError.badRequest('Validation failed', errors));
+      const fieldNames = errors.map(e => e.field).join(', ');
+      const detailedMessage = `Validation failed for: ${fieldNames}`;
+      console.error(`❌ ${detailedMessage}`, JSON.stringify({ body: req.body, errors }, null, 2));
+      return next(ApiError.badRequest(detailedMessage, errors));
     }
 
     // Replace body with parsed (and potentially coerced/transformed) data
