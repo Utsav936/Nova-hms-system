@@ -8,10 +8,17 @@ let initialized = false;
 
 try {
 if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+    // God-mode resilient key parsing
+    const rawKey = process.env.FIREBASE_PRIVATE_KEY;
+    const formattedKey = rawKey
+      .replace(/\\n/g, '\n')      // Fix escaped newlines
+      .replace(/"/g, '')          // Remove accidental quotes
+      .trim();                    // Remove accidental whitespace
+
     serviceAccount = {
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      project_id: process.env.FIREBASE_PROJECT_ID,
+      client_email: process.env.FIREBASE_CLIENT_EMAIL,
+      private_key: formattedKey,
     };
   } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
