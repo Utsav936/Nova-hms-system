@@ -55,16 +55,19 @@ export default function BookAppointmentModal({ isOpen, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user?.patient_profile?.id) {
-      error('User profile not found. Cannot book appointment.');
+    // God-mode resilient ID selection
+    const patientId = user?.patient_profile?.id || user?.id || user?.uid;
+    
+    if (!patientId) {
+      error('User identity not found. Please log out and log back in.');
+      setIsSubmitting(false);
       return;
     }
 
-    setIsSubmitting(true);
     try {
       await appointmentService.create({
         ...formData,
-        patient_id: user.patient_profile.id,
+        patient_id: patientId,
       });
       success('Appointment booked successfully!');
       onSuccess();

@@ -2,7 +2,9 @@ import axios from 'axios';
 import { auth } from '../config/firebase';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
+  baseURL: import.meta.env.PROD 
+    ? 'https://nova-hms-api.onrender.com/api/v1' 
+    : 'http://localhost:5000/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
