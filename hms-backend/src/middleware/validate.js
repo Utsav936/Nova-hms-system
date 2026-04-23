@@ -13,6 +13,7 @@ const validate = (schema) => {
         field: issue.path.join('.'),
         message: issue.message,
       }));
+      console.log('❌ Validation Failed:', JSON.stringify({ body: req.body, errors }, null, 2));
       return next(ApiError.badRequest('Validation failed', errors));
     }
 
