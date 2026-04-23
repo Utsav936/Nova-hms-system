@@ -12,6 +12,7 @@ const getById = catchAsync(async (req, res) => {
 });
 
 const create = catchAsync(async (req, res) => {
+  console.log('🚀 [APPOINTMENT CREATE] Request Body:', JSON.stringify(req.body, null, 2));
   const appointment = await appointmentService.create(req.body);
   res.status(201).json({ status: 'success', data: { appointment } });
 });
