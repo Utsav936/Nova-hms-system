@@ -8,8 +8,8 @@ const createDepartmentSchema = z.object({
 const updateDepartmentSchema = createDepartmentSchema.partial();
 
 const createMedicalRecordSchema = z.object({
-  patient_id: z.string().uuid('Invalid patient ID'),
-  appointment_id: z.string().uuid('Invalid appointment ID').optional(),
+  patient_id: z.string().min(1, 'Invalid patient ID'),
+  appointment_id: z.string().min(1, 'Invalid appointment ID').optional(),
   diagnosis: z.string().min(1, 'Diagnosis is required').max(2000),
   symptoms: z.string().max(2000).optional(),
   treatment: z.string().max(2000).optional(),

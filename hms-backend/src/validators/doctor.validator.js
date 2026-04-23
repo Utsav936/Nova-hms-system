@@ -5,7 +5,7 @@ const createDoctorSchema = z.object({
   password: z.string().min(8).max(100),
   first_name: z.string().min(1).max(100).trim(),
   last_name: z.string().min(1).max(100).trim(),
-  department_id: z.string().uuid('Invalid department ID'),
+  department_id: z.string().min(1, 'Invalid department ID'),
   specialization: z.string().min(1).max(150).trim(),
   phone: z.string().max(20).optional(),
   qualification: z.string().max(255).optional(),
@@ -15,7 +15,7 @@ const createDoctorSchema = z.object({
 });
 
 const updateDoctorSchema = z.object({
-  department_id: z.string().uuid().optional(),
+  department_id: z.string().optional(),
   specialization: z.string().min(1).max(150).trim().optional(),
   phone: z.string().max(20).optional(),
   qualification: z.string().max(255).optional(),

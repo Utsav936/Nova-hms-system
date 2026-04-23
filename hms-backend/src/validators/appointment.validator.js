@@ -1,8 +1,8 @@
 const { z } = require('zod');
 
 const createAppointmentSchema = z.object({
-  patient_id: z.string().uuid('Invalid patient ID'),
-  doctor_id: z.string().uuid('Invalid doctor ID'),
+  patient_id: z.string().min(1, 'Invalid patient ID'),
+  doctor_id: z.string().min(1, 'Invalid doctor ID'),
   appointment_date: z.string().min(1, 'Appointment date is required'),
   appointment_time: z.string().min(1, 'Appointment time is required'),
   type: z.enum(['consultation', 'follow_up', 'emergency', 'routine_checkup']).default('consultation'),
