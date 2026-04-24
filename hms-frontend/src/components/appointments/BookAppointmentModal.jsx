@@ -1,20 +1,23 @@
 import { useState, useEffect } from 'react';
 import doctorService from '../../services/doctorService';
 import appointmentService from '../../services/appointmentService';
+import patientService from '../../services/patientService';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import Modal from '../common/Modal';
 import Button from '../common/Button';
 
 export default function BookAppointmentModal({ isOpen, onClose, onSuccess }) {
-  const { user } = useAuth();
+  const { user, isPatient } = useAuth();
   const { error, success } = useToast();
   
   const [doctors, setDoctors] = useState([]);
+  const [patients, setPatients] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
+    patient_id: '',
     doctor_id: '',
     appointment_date: '',
     appointment_time: '',
@@ -25,8 +28,10 @@ export default function BookAppointmentModal({ isOpen, onClose, onSuccess }) {
   useEffect(() => {
     if (isOpen) {
       fetchDoctors();
+      if (!isPatient) fetchPatients();
       // Reset form
       setFormData({
+        patient_id: '',
         doctor_id: '',
         appointment_date: '',
         appointment_time: '',
@@ -48,6 +53,15 @@ export default function BookAppointmentModal({ isOpen, onClose, onSuccess }) {
     }
   };
 
+  const fetchPatients = async () => {
+    try {
+      const res = await patientService.getAll();
+      setPatients(res.data.data);
+    } catch (err) {
+      console.error('Failed to load patients:', err);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -55,11 +69,15 @@ export default function BookAppointmentModal({ isOpen, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // God-mode resilient ID selection
-    const patientId = user?.patient_profile?.id || user?.id || user?.uid;
+    setIsSubmitting(true);
+
+    // For patients: derive ID from their profile. For staff: use the selected patient.
+    const patientId = isPatient
+      ? (user?.patient_profile?.id || user?.id || user?.uid)
+      : formData.patient_id;
     
     if (!patientId) {
-      error('User identity not found. Please log out and log back in.');
+      error(isPatient ? 'User identity not found. Please log out and log back in.' : 'Please select a patient.');
       setIsSubmitting(false);
       return;
     }
@@ -86,6 +104,28 @@ export default function BookAppointmentModal({ isOpen, onClose, onSuccess }) {
     <Modal isOpen={isOpen} onClose={onClose} title="Book Appointment">
       <form onSubmit={handleSubmit} className="book-appointment-form flex-col gap-4">
         
+        {/* Patient selector — only for admin/receptionist */}
+        {!isPatient && (
+          <div className="form-group flex-col gap-1">
+            <label htmlFor="patient_id">Select Patient</label>
+            <select 
+              id="patient_id" 
+              name="patient_id" 
+              value={formData.patient_id} 
+              onChange={handleChange} 
+              required 
+              className="custom-input"
+            >
+              <option value="" disabled>Choose a patient...</option>
+              {patients.map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.first_name} {p.last_name} — {p.email || p.phone}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div className="form-group flex-col gap-1">
           <label htmlFor="doctor_id">Select Doctor</label>
           <select 

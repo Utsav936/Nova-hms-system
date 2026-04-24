@@ -58,7 +58,6 @@ class AppointmentService {
   }
 
   async create(data) {
-    console.log('📅 Creating Appointment with data:', JSON.stringify(data, null, 2));
     const { doctor_id, patient_id, appointment_date, appointment_time } = data;
 
     // Verify doctor exists and is available

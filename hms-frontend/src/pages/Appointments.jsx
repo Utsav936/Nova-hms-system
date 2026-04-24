@@ -10,7 +10,7 @@ import DeclineAppointmentModal from '../components/appointments/DeclineAppointme
 import { MdAdd, MdFilterList, MdCheck, MdClose, MdVisibility, MdCalendarToday, MdFormatListBulleted } from 'react-icons/md';
 
 export default function Appointments() {
-  const { user, isPatient, isDoctor } = useAuth();
+  const { user, isPatient, isDoctor, isAdmin, isReceptionist } = useAuth();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -87,7 +87,7 @@ export default function Appointments() {
             <button className={view === 'table' ? 'active' : ''} onClick={() => setView('table')}><MdFormatListBulleted /> Table</button>
           </div>
 
-          {isPatient && (
+          {(isPatient || isAdmin || isReceptionist) && (
             <Button icon={<MdAdd />} onClick={() => setIsModalOpen(true)}>
               Book Appointment
             </Button>
@@ -143,20 +143,19 @@ export default function Appointments() {
                     <tr key={apt.id}>
                       <td>
                         <div className="font-semibold text-white">
-                          {new Date(apt.appointment_date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric'})}
+                          {apt.appointment_date ? new Date(apt.appointment_date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric'}) : '—'}
                         </div>
-                        <div className="text-xs text-muted">{apt.appointment_time.substring(0,5)}</div>
+                        <div className="text-xs text-muted">{apt.appointment_time ? apt.appointment_time.substring(0,5) : ''}</div>
                       </td>
                       <td>
                         {isPatient ? (
                           <>
-                            <div className="text-sm font-medium">Dr. {apt.doctor_last_name}</div>
+                            <div className="text-sm font-medium">Dr. {apt.doctor_name || apt.doctor_last_name || '—'}</div>
                             <div className="text-xs text-muted">{apt.specialization}</div>
                           </>
                         ) : (
                           <>
-                            <div className="text-sm font-medium">{apt.patient_first_name} {apt.patient_last_name}</div>
-                            <div className="text-xs text-muted">{apt.patient_phone}</div>
+                            <div className="text-sm font-medium">{apt.patient_name || `${apt.patient_first_name || ''} ${apt.patient_last_name || ''}`.trim() || '—'}</div>
                           </>
                         )}
                       </td>
