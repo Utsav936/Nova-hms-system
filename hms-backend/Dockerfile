@@ -18,6 +18,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --omit=dev
 
+# Bust Docker cache on every deploy
+ARG CACHEBUST=1
+
 # Copy the rest of the application code
 COPY . .
 
